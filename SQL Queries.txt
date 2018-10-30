@@ -1,0 +1,160 @@
+--    Download the customer.csvPreview the document file
+--    Import the customers file into Workbench.Hint: Right-click on the database name and select table import option from the menu.
+--    Write a query to find the number of unique companies in the table.
+--    Create a new table for companies and move that data to the new table. Only move the unique companies.
+--    Then add a column to your customers table and update the the new column which is called CompanyID.
+--    Create a new table for cities and a new table for states and positions.
+--    Move that data to the new tables in the same way you did above. Move unique cities and unique states to the two new tables.
+--    Delete those columns from this table and add keys to link to the new tables.
+--    Create a query that recreates the original data set using joined tables.
+
+
+create table Position (
+positionID int NOT NULL AUTO_INCREMENT,
+Position varchar(255),
+primary key (positionID)
+);
+
+select * from Position;
+
+select distinct position from Customer
+where length(position)>0 and position is not null  order by position;
+
+select count(distinct position) from Customer;
+
+insert into Position (position)
+select distinct position from Customer
+where length(position)>0 and position is not null  order by position;
+
+select count(*) from Position;
+
+select * from Position;
+
+select * from Customer;
+
+-- blech error
+update Customer c set c.Position = (select t.positionID from
+Position t where t.position=c.position);
+
+-- don't need this anymore
+select c.positionID,c.position,t.positionID,t.position from
+Customer c inner join Position t on c.positionID=t.positionID;
+
+-- fix it
+ALTER TABLE Customer
+MODIFY Position int;
+
+ALTER TABLE Customer
+change Position PositionId int not null;
+
+select c.positionID,t.positionID,t.position from
+Customer c inner join Position t on c.positionID=t.positionID;
+
+create table CityState (
+citystateID int NOT Null auto_increment,
+city varchar(255),
+state varchar(255),
+primary key (citystateID)
+);
+
+select distinct city, state
+from customer
+order by state, city;
+
+insert into CityState (city, state)
+select distinct city, state
+from Customer
+order by state, city;
+
+select * from citystate;
+
+alter table Customer add citystateID int;
+
+select city, state, citystateid from Customer;
+
+
+update Customer c set c.citystateID = (select t.citystateID from
+CityState t where t.city=c.city and t.state=c.state);
+
+select c.citystateid, c.city, c.state, t.citystateid, t.city, t.state
+from customer c, citystate t
+where c.citystateid = t.citystateID;
+
+
+ select c.companyID,c.company,t.companyID,t.Company from
+Customer c inner join Company t on c.CompanyID=t.CompanyID;
+
+alter table customer drop column city;
+
+alter table customer drop column state;
+
+-- List all the people in the customer's table who's last name is Smith.
+select firstname, lastname from Customer
+where lastname = 'Smith';
+
+-- List all the customers and their employers and positions that live in Toledo
+select c.firstname, c.lastname, t.company, p.position
+from customer c, company t, position p
+where c.CompanyID=t.companyID and c.positionid=p.positionid;
+
+-- List all the customers and their employers and positions that live in Virginia Beach
+select c.firstname, c.lastname, t.company, p.position, s.city
+from customer c, company t, position p, citystate s
+where c.CompanyID=t.companyID and c.positionid=p.positionid
+	and c.citystateID=s.citystateid and s.city='Virginia Beach';
+
+-- Which is the most popular employer in our database? (hint: use select count(*) ....)
+
+select company.company, count(customer.companyid)
+from customer inner join company
+on customer.companyid = company.companyid
+group by company
+order by count(customer.CustomerId) DESC;
+
+
+-- Which is the most populated state in our database?
+
+select citystate.state, count(state)
+from customer inner join citystate
+on customer.citystateID = citystate.citystateID
+-- where citystate.state = 'CA'
+group by state
+order by count(state) DESC;
+
+-- Change the name of Paula Hill of Anaheim, CA. She just got married to Mr. Smith
+-- so she is now Paula Smith.
+
+select firstname, lastname
+from customer
+where firstname = 'Paula';
+
+update customer
+set lastName = 'Smith'
+where FirstName='Paula' and LastName='Hill';
+
+
+-- Vanessa Brown also married Mr. Smith (not the same guy). Update her record as well.
+
+select firstname, lastname
+from customer
+where firstname = 'Vanessa';
+
+update customer
+set lastName = 'Smith'
+where FirstName='Vanessa' and LastName='Brown';
+
+
+-- Now I want to know how many people in the database are named Smith?
+
+select count(*)
+from customer
+where lastname='Smith';
+
+-- How many people have last names beginning with S?
+select count(*)
+from customer
+where lastname like 'S%';
+
+25
+
+
